@@ -36,7 +36,7 @@ def get_new_api_key(
     include_in_schema=settings.security_hide_docs,
 )
 def revoke_api_key(
-    api_key: str = Query(..., alias="api-key", description="the api_key to revoke")
+    api_key: str = Query(..., alias="api-key", description="the api_key to revoke"),
 ):
     """
     Revokes the usage of the given API key
@@ -88,5 +88,5 @@ def get_api_key_usage_logs():
                 name=row[6],
             )
             for row in security_db_accsess.get_usage_stats()
-        ]
+        ],
     )

@@ -86,7 +86,7 @@ class RequestHandler:
             )
         except requests.Timeout as exception:
             raise PyarrConnectionError(
-                "Timeout occurred while connecting to API."
+                "Timeout occurred while connecting to API.",
             ) from exception
         response = _process_response(res)
         return self._return(res, dict if isinstance(response, dict) else list)
@@ -120,7 +120,7 @@ class RequestHandler:
 
         except requests.Timeout as exception:
             raise PyarrConnectionError(
-                "Timeout occurred while connecting to API."
+                "Timeout occurred while connecting to API.",
             ) from exception
         response = _process_response(res)
         return self._return(res, dict if isinstance(response, dict) else list)
@@ -154,7 +154,7 @@ class RequestHandler:
             )
         except requests.Timeout as exception:
             raise PyarrConnectionError(
-                "Timeout occurred while connecting to API."
+                "Timeout occurred while connecting to API.",
             ) from exception
 
         response = _process_response(res)
@@ -188,7 +188,7 @@ class RequestHandler:
             )
         except requests.Timeout as exception:
             raise PyarrConnectionError(
-                "Timeout occurred while connecting to API"
+                "Timeout occurred while connecting to API",
             ) from exception
         response = _process_response(res)
         if isinstance(response, dict):
@@ -234,11 +234,13 @@ def _process_response(
 
     if res.status_code == 401:
         raise PyarrUnauthorizedError(
-            "Unauthorized. Please ensure valid API Key is used.", {}
+            "Unauthorized. Please ensure valid API Key is used.",
+            {},
         )
     if res.status_code == 403:
         raise PyarrAccessRestricted(
-            "Access restricted. Please ensure API Key has correct permissions", {}
+            "Access restricted. Please ensure API Key has correct permissions",
+            {},
         )
     if res.status_code == 404:
         raise PyarrResourceNotFound("Resource not found")

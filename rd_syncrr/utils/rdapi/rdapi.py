@@ -20,8 +20,8 @@ class RD:
         self.header = {"Authorization": "Bearer " + str(self.rd_apitoken)}
         self.error_codes = json.load(
             open(  # noqa: SIM115
-                os.path.join(Path(__file__).parent.absolute(), "error_codes.json")
-            )
+                os.path.join(Path(__file__).parent.absolute(), "error_codes.json"),
+            ),
         )
         self.sleep = settings.rd_sleep
         self.long_sleep = settings.rd_long_sleep
@@ -43,31 +43,42 @@ class RD:
 
     def get(self, path: str, **options: Any) -> Response:
         request = requests.get(  # noqa: S113
-            self.base_url + path, headers=self.header, params=options
+            self.base_url + path,
+            headers=self.header,
+            params=options,
         )
         return self.handler(request, self.error_codes, path)
 
     def post(self, path: str, **payload: Any) -> Response:
         request = requests.post(  # noqa: S113
-            self.base_url + path, headers=self.header, data=payload
+            self.base_url + path,
+            headers=self.header,
+            data=payload,
         )
         return self.handler(request, self.error_codes, path)
 
     def put(self, path: str, filepath: str, **payload: Any) -> Response:
         with open(filepath, "rb") as file:
             request = requests.put(  # noqa: S113
-                self.base_url + path, headers=self.header, data=file, params=payload
+                self.base_url + path,
+                headers=self.header,
+                data=file,
+                params=payload,
             )
         return self.handler(request, self.error_codes, path)
 
     def delete(self, path: str) -> Response:
         request = requests.delete(  # noqa: S113
-            self.base_url + path, headers=self.header
+            self.base_url + path,
+            headers=self.header,
         )
         return self.handler(request, self.error_codes, path)
 
     def handler(
-        self, request: Response, error_codes: dict[str, str], path: str
+        self,
+        request: Response,
+        error_codes: dict[str, str],
+        path: str,
     ) -> Response:
         try:
             request.raise_for_status()
@@ -136,7 +147,10 @@ class RD:
             remote: Optional[str] = None,
         ) -> Response:
             return self.rd.post(
-                "/unrestrict/link", link=link, password=password, remote=remote
+                "/unrestrict/link",
+                link=link,
+                password=password,
+                remote=remote,
             )
 
         def folder(self, link: str) -> Response:
@@ -156,7 +170,9 @@ class RD:
             return self.rd.get("/traffic")
 
         def details(
-            self, start: Optional[str] = None, end: Optional[str] = None
+            self,
+            start: Optional[str] = None,
+            end: Optional[str] = None,
         ) -> Response:
             return self.rd.get("/traffic/details", start=start, end=end)
 
@@ -197,7 +213,11 @@ class RD:
             filter: Optional[str] = None,  # noqa: A002
         ) -> Response:
             return self.rd.get(
-                "/torrents", offset=offset, page=page, limit=limit, filter=filter
+                "/torrents",
+                offset=offset,
+                page=page,
+                limit=limit,
+                filter=filter,
             )
 
         def info(self, id: str) -> Response:  # noqa: A002

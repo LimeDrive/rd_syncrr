@@ -23,8 +23,9 @@ def init_scheduler() -> AsyncIOScheduler:
     """
     jobstore = {
         "default": SQLAlchemyJobStore(
-            url="sqlite:///rd_syncrr_jobs.db", tablename="default_jobs"
-        )
+            url="sqlite:///rd_syncrr_jobs.db",
+            tablename="default_jobs",
+        ),
     }
     job_defaults = {
         "coalesce": True,
@@ -47,7 +48,8 @@ async def database_update_job() -> None:
 
 
 async def _trigger_database_update_job(
-    scheduler: AsyncIOScheduler, jobs: List[Job]
+    scheduler: AsyncIOScheduler,
+    jobs: List[Job],
 ) -> None:
     """Trigger the database update job.
 

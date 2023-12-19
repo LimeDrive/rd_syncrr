@@ -99,5 +99,11 @@ ReadarrSearchType = Literal["asin", "edition", "isbn", "author", "work"]
 
 #: Readarr author monitor options.
 ReadarrAuthorMonitor = Literal[
-    "all", "future", "missing", "existing", "first", "latest", "none"
+    "all",
+    "future",
+    "missing",
+    "existing",
+    "first",
+    "latest",
+    "none",
 ]

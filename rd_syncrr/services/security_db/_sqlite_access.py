@@ -22,13 +22,16 @@ class SQLiteAccess:
         if settings.environment != "dev":
             try:
                 self.db_location = os.path.join(
-                    settings.security_db_location, "rd_syncrr_user.db"
+                    settings.security_db_location,
+                    "rd_syncrr_user.db",
                 )
             except KeyError:
                 self.db_location = "rd_syncrr_user.db"
                 logger.warning(
-                    "Security db location not found or wrong in settings. Using default"
-                    " location for development."
+                    (
+                        "Security db location not found or wrong in settings. Using"
+                        " default location for development."
+                    ),
                 )
         else:
             self.db_location = "rd_syncrr_user.db"
@@ -39,8 +42,10 @@ class SQLiteAccess:
         except KeyError:
             self.expiration_limit = 15
             logger.warning(
-                "Security api key expiration not found or invalid in settings. Using"
-                " default value 15 days."
+                (
+                    "Security api key expiration not found or invalid in settings."
+                    " Using default value 15 days."
+                ),
             )
 
         self.init_db()
@@ -58,7 +63,7 @@ class SQLiteAccess:
             expiration_date TEXT,
             latest_query_date TEXT,
             total_queries INTEGER)
-        """
+        """,
             )
             connection.commit()
             # Migration: Add api key name
@@ -114,7 +119,8 @@ class SQLiteAccess:
             # API key not found
             if not response:
                 raise HTTPException(
-                    status_code=HTTP_404_NOT_FOUND, detail="API key not found"
+                    status_code=HTTP_404_NOT_FOUND,
+                    detail="API key not found",
                 )
 
             response_lines = []
@@ -122,7 +128,7 @@ class SQLiteAccess:
             # Previously revoked key. Issue a text warning and reactivate it.
             if response[0] == 0:
                 response_lines.append(
-                    "This API key was revoked and has been reactivated."
+                    "This API key was revoked and has been reactivated.",
                 )
 
             # Without an expiration date, we set it here
@@ -135,7 +141,7 @@ class SQLiteAccess:
                 try:
                     # We parse and re-write to the right timespec
                     parsed_expiration_date = datetime.fromisoformat(
-                        new_expiration_date
+                        new_expiration_date,
                     ).isoformat(timespec="seconds")
                 except ValueError as exc:
                     raise HTTPException(
@@ -161,7 +167,7 @@ class SQLiteAccess:
             connection.commit()
 
             response_lines.append(
-                f"The new expiration date for the API key is {parsed_expiration_date}"
+                f"The new expiration date for the API key is {parsed_expiration_date}",
             )
 
             return " ".join(response_lines)

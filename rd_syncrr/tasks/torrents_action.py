@@ -23,7 +23,7 @@ async def check_hash_availability(
         return False
     elif "rd" not in response[hash]:
         logger.info(
-            f"Torrent {hash} is not available in Real-Debrid but on other hosters"
+            f"Torrent {hash} is not available in Real-Debrid but on other hosters",
         )
         return False
     else:
@@ -42,7 +42,7 @@ async def add_cached_torrent_to_rd(hash: str) -> None:  # noqa: A002
         magnet = rdapi.torrents.add_magnet(magnet=hash).json()
         rdapi.torrents.select_files(id=magnet["id"], files="all")
         logger.info(
-            f"Torrent file : id = {magnet['id']} ; hash = {hash} was added to RD"
+            f"Torrent file : id = {magnet['id']} ; hash = {hash} was added to RD",
         )
         await asyncio.sleep(1)
     except Exception as e:

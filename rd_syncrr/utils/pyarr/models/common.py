@@ -5,7 +5,13 @@ PyarrSortDirection = Literal["ascending", "default", "descending"]
 
 
 PyarrLogSortKey = Literal[
-    "Id", "level", "time", "logger", "message", "exception", "exceptionType"
+    "Id",
+    "level",
+    "time",
+    "logger",
+    "message",
+    "exception",
+    "exceptionType",
 ]
 """Log Sort Keys
 

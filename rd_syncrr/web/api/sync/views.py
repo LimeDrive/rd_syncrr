@@ -10,7 +10,9 @@ router = APIRouter()
 
 
 @router.get(
-    "/fetchAll", dependencies=[Depends(api_key_security)], response_model=list[Torrent]
+    "/fetchAll",
+    dependencies=[Depends(api_key_security)],
+    response_model=list[Torrent],
 )
 async def get_all_torrents() -> Any:
     """
@@ -31,11 +33,13 @@ async def get_all_torrents() -> Any:
             return json.load(f)
     except FileNotFoundError:
         raise HTTPException(  # noqa: B904, TRY200
-            status_code=404, detail="File not found"
+            status_code=404,
+            detail="File not found",
         )
     except json.JSONDecodeError:
         raise HTTPException(  # noqa: B904, TRY200
-            status_code=400, detail="Invalid JSON"
+            status_code=400,
+            detail="Invalid JSON",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))  # noqa: B904, TRY200
@@ -65,11 +69,13 @@ async def get_latest_torrents() -> Any:
             return json.load(f)
     except FileNotFoundError:
         raise HTTPException(  # noqa: B904, TRY200
-            status_code=404, detail="File not found"
+            status_code=404,
+            detail="File not found",
         )
     except json.JSONDecodeError:
         raise HTTPException(  # noqa: B904, TRY200
-            status_code=400, detail="Invalid JSON"
+            status_code=400,
+            detail="Invalid JSON",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))  # noqa: B904, TRY200

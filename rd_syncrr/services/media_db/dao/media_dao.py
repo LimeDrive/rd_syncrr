@@ -41,7 +41,9 @@ class MediaDAO:
         engine = create_async_engine(db_path)
         async_session = async_scoped_session(
             async_sessionmaker(
-                bind=engine, class_=AsyncSession, expire_on_commit=False
+                bind=engine,
+                class_=AsyncSession,
+                expire_on_commit=False,
             ),
             scopefunc=current_task,
         )
@@ -61,7 +63,10 @@ class MediaDAO:
         await self.close()
 
     async def create_torrent_model(
-        self, hash: str, id: str, filename: str  # noqa: A002
+        self,
+        hash: str,  # noqa: A002
+        id: str,  # noqa: A002
+        filename: str,
     ) -> None:
         """
         Add single torrent to session.
@@ -132,7 +137,9 @@ class MediaDAO:
             await self.session.rollback()
 
     async def create_file_model(
-        self, torrent_id: str, file_data: dict[str, Any]
+        self,
+        torrent_id: str,
+        file_data: dict[str, Any],
     ) -> None:
         """
         Add single file to torrent.
@@ -203,7 +210,8 @@ class MediaDAO:
         return result.scalars().first()
 
     async def get_files_from_torrent_id(
-        self, torrent_id: str
+        self,
+        torrent_id: str,
     ) -> Sequence[TorrentFileModel]:
         """
         Get all torrent files for a torrent.
@@ -211,7 +219,7 @@ class MediaDAO:
         :return: List of torrent file models.
         """
         query = select(TorrentFileModel).where(
-            TorrentFileModel.torrent_id == torrent_id
+            TorrentFileModel.torrent_id == torrent_id,
         )
         result = await self.session.execute(query)
         return result.scalars().all()
@@ -222,7 +230,7 @@ class MediaDAO:
         :return: Dictionary of torrent files.
         """
         result = await self.session.execute(
-            select(TorrentFileModel.id, TorrentFileModel.path)
+            select(TorrentFileModel.id, TorrentFileModel.path),
         )
         if not result.scalars().all():
             return None
@@ -277,7 +285,7 @@ class MediaDAO:
         :return: Dictionary of symlinks.
         """
         result = await self.session.execute(
-            select(SymlinkModel.id, SymlinkModel.destination_filename)
+            select(SymlinkModel.id, SymlinkModel.destination_filename),
         )
         if not result.scalars().all():
             return None
@@ -292,7 +300,7 @@ class MediaDAO:
         :return: Dictionary of symlinks.
         """
         result = await self.session.execute(
-            select(SymlinkModel.id, SymlinkModel.target_filename)
+            select(SymlinkModel.id, SymlinkModel.target_filename),
         )
         if not result.scalars().all():
             return None
