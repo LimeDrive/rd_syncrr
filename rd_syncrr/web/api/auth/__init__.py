@@ -1,0 +1,4 @@
+"""Auth by apikey endpoint."""
+from rd_syncrr.web.api.auth.views import router
+
+__all__ = ["router"]

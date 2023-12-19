@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: prod
+    image: rd_syncrr:${RD_SYNCRR_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    environment:
+      RD_SYNCRR_HOST: 0.0.0.0
