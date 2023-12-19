@@ -48,7 +48,8 @@ def _get_all_local_torrents(
 
 
 def _list_wanted_torrents(
-    synced_torrents: list[dict[str, Any]], local_torrents: list[dict[str, Any]] | None
+    synced_torrents: list[dict[str, Any]],
+    local_torrents: list[dict[str, Any]] | None,
 ) -> list[dict[str, Any]] | None:
     """List wanted torrents."""
     if local_torrents is None:

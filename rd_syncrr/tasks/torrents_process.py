@@ -111,7 +111,9 @@ async def _add_torrent_to_database(dao: MediaDAO, torrent: dict[str, Any]) -> No
         torrent: The torrent data to add.
     """
     await dao.create_torrent_model(
-        hash=torrent["hash"], id=torrent["id"], filename=torrent["filename"]
+        hash=torrent["hash"],
+        id=torrent["id"],
+        filename=torrent["filename"],
     )
 
 
@@ -131,7 +133,7 @@ async def _add_files_to_torrent(dao: MediaDAO, torrent: dict[str, Any]) -> None:
         for file in file_data:
             await dao.create_file_model(torrent_id=torrent["id"], file_data=file)
             logger.debug(
-                f"File from {torrent['filename']} added to database: {file['path']}"
+                f"File from {torrent['filename']} added to database: {file['path']}",
             )
     except Exception as e:
         logger.error(f"An error occurred while getting files info in RD: {e!s}")

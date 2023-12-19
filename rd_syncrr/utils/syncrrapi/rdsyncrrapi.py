@@ -29,26 +29,34 @@ class RDSyncrrApi:
 
     def get(self, path: str, **options: Any) -> Response:
         request = requests.get(  # noqa: S113
-            self.base_url + path, headers=self.header, params=options
+            self.base_url + path,
+            headers=self.header,
+            params=options,
         )
         return self.handler(request, path)
 
     def post(self, path: str, **payload: Any) -> Response:
         request = requests.post(  # noqa: S113
-            self.base_url + path, headers=self.header, data=payload
+            self.base_url + path,
+            headers=self.header,
+            data=payload,
         )
         return self.handler(request, path)
 
     def put(self, path: str, filepath: str, **payload: Any) -> Response:
         with open(filepath, "rb") as file:
             request = requests.put(  # noqa: S113
-                self.base_url + path, headers=self.header, data=file, params=payload
+                self.base_url + path,
+                headers=self.header,
+                data=file,
+                params=payload,
             )
         return self.handler(request, path)
 
     def delete(self, path: str) -> Response:
         request = requests.delete(  # noqa: S113
-            self.base_url + path, headers=self.header
+            self.base_url + path,
+            headers=self.header,
         )
         return self.handler(request, path)
 

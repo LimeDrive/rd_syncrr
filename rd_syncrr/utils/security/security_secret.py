@@ -36,16 +36,20 @@ class GhostLoadedSecret:
             except KeyError:
                 secret_value = str(uuid.uuid4())
                 logger.warning(
-                    "ENVIRONMENT VARIABLE 'RD_SYNCRR_SECURITY_SECRET' FORMAT INCORECT\n"
-                    "\tGenerated a single-use secret key for this session:\n"
-                    f"\t{secret_value=}"
+                    (
+                        "ENVIRONMENT VARIABLE 'RD_SYNCRR_SECURITY_SECRET' FORMAT"
+                        " INCORECT\n\tGenerated a single-use secret key for this"
+                        f" session:\n\t{secret_value=}"
+                    ),
                 )
         else:
             secret_value = str(uuid.uuid4())
             logger.warning(
-                "ENVIRONMENT VARIABLE 'RD_SYNCRR_SECURITY_SECRET' NOT FOUND\n"
-                "\tGenerated a single-use secret key for this session:\n"
-                f"\t{secret_value=}"
+                (
+                    "ENVIRONMENT VARIABLE 'RD_SYNCRR_SECURITY_SECRET' NOT FOUND\n"
+                    "\tGenerated a single-use secret key for this session:\n"
+                    f"\t{secret_value=}"
+                ),
             )
 
         return secret_value
@@ -56,7 +60,9 @@ secret = GhostLoadedSecret()
 SECRET_KEY_NAME = "secret-key"  # noqa: S105
 
 secret_header = APIKeyHeader(
-    name=SECRET_KEY_NAME, scheme_name="Secret header", auto_error=False
+    name=SECRET_KEY_NAME,
+    scheme_name="Secret header",
+    auto_error=False,
 )
 
 

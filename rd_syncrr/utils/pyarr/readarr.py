@@ -265,7 +265,8 @@ class ReadarrAPI(BaseArrAPI):
 
     # GET /metadataprofile/{id}
     def get_metadata_profile(
-        self, id_: Optional[int] = None
+        self,
+        id_: Optional[int] = None,
     ) -> Union[JsonArray, dict[Any, Any]]:
         """Gets all metadata profiles or specific one with ID
 
@@ -335,7 +336,8 @@ class ReadarrAPI(BaseArrAPI):
 
     # GET /delayprofile/{id}
     def get_delay_profile(
-        self, id_: Optional[int] = None
+        self,
+        id_: Optional[int] = None,
     ) -> Union[JsonArray, JsonObject]:
         """Gets all delay profiles or specific one with ID
 
@@ -350,7 +352,8 @@ class ReadarrAPI(BaseArrAPI):
 
     # GET /releaseprofile/{id}
     def get_release_profile(
-        self, id_: Optional[int] = None
+        self,
+        id_: Optional[int] = None,
     ) -> Union[JsonArray, JsonObject]:
         """Gets all release profiles or specific one with ID
 
@@ -411,14 +414,14 @@ class ReadarrAPI(BaseArrAPI):
                 quality_profile_id = self.get_quality_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Quality Profile setup"
+                    "There is no Quality Profile setup",
                 ) from exception
         if metadata_profile_id is None:
             try:
                 metadata_profile_id = self.get_metadata_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Metadata Profile setup"
+                    "There is no Metadata Profile setup",
                 ) from exception
 
         book["author"]["rootFolderPath"] = root_dir
@@ -458,7 +461,9 @@ class ReadarrAPI(BaseArrAPI):
 
     # PUT /book/monitor
     def upd_book_monitor(
-        self, book_ids: list[int], monitored: bool = True
+        self,
+        book_ids: list[int],
+        monitored: bool = True,
     ) -> JsonArray:
         """Update book monitored status
 
@@ -545,14 +550,14 @@ class ReadarrAPI(BaseArrAPI):
                 quality_profile_id = self.get_quality_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Quality Profile setup"
+                    "There is no Quality Profile setup",
                 ) from exception
         if metadata_profile_id is None:
             try:
                 metadata_profile_id = self.get_metadata_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Metadata Profile setup"
+                    "There is no Metadata Profile setup",
                 ) from exception
         author["metadataProfileId"] = metadata_profile_id
         author["qualityProfileId"] = quality_profile_id

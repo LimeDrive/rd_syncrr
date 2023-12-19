@@ -11,7 +11,8 @@ arrinfo = ArrInfo()
 
 
 async def _add_sonarr_episodes_to_db(
-    dao: MediaDAO, new_episodes: List[Dict[str, Any]]
+    dao: MediaDAO,
+    new_episodes: List[Dict[str, Any]],
 ) -> None:
     """
     Add new episodes to the database.
@@ -24,12 +25,14 @@ async def _add_sonarr_episodes_to_db(
         for episode in new_episodes:
             await dao.create_sonarr_episode_model(episode)
             logger.info(
-                f"Episode info added to database: {episode['serieTitle']} "
-                f"Episode {episode['episodeNumber']} Saison {episode['seasonNumber']}"
+                (
+                    f"Episode info added to database: {episode['serieTitle']} Episode"
+                    f" {episode['episodeNumber']} Saison {episode['seasonNumber']}"
+                ),
             )
     except Exception as e:
         logger.error(
-            f"An error occurred while adding new episodes to the database: {e!s}"
+            f"An error occurred while adding new episodes to the database: {e!s}",
         )
 
 
@@ -59,7 +62,8 @@ async def _get_sonarr_new_episodes(dao: MediaDAO) -> List[Dict[str, Any]] | None
 
 
 async def _add_radarr_movies_to_db(
-    dao: MediaDAO, new_movies: List[Dict[str, Any]]
+    dao: MediaDAO,
+    new_movies: List[Dict[str, Any]],
 ) -> None:
     """
     Add new movies to the database.
@@ -74,7 +78,7 @@ async def _add_radarr_movies_to_db(
             logger.info(f"Movie info added to database: {movie['title']}")
     except Exception as e:
         logger.error(
-            f"An error occurred while adding new movies to the database: {e!s}"
+            f"An error occurred while adding new movies to the database: {e!s}",
         )
 
 
@@ -121,5 +125,5 @@ async def process_mediainfo(dao: MediaDAO) -> None:
         logger.info("Media info updated.")
     except Exception as e:
         logger.error(
-            f"An error occurred while processing media info update on db: {e!s}"
+            f"An error occurred while processing media info update on db: {e!s}",
         )

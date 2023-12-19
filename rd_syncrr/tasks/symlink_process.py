@@ -59,7 +59,8 @@ async def _get_symlink_info(link_path: str) -> dict[str, Any] | None:
 
 
 async def _update_symlink_db(
-    dao: MediaDAO, symlink_info_list: list[dict[str, str]]
+    dao: MediaDAO,
+    symlink_info_list: list[dict[str, str]],
 ) -> None:
     """
     Update the symbolic links in the database.
@@ -71,22 +72,26 @@ async def _update_symlink_db(
     torrent_files_dict = await dao.get_torrent_files_filename_dict()
     if not torrent_files_dict:
         logger.warning(
-            "No torrent files found in your database. Skipping the symlink update."
+            "No torrent files found in your database. Skipping the symlink update.",
         )
         return
     for symlink_info in symlink_info_list:
         if symlink_info["target_filename"] not in torrent_files_dict:
             logger.warning(
-                f"File {symlink_info['target_filename']} not found in Torrent Files"
-                " Data. Skipping the symlink update."
+                (
+                    f"File {symlink_info['target_filename']} not found in Torrent Files"
+                    " Data. Skipping the symlink update."
+                ),
             )
             continue
         try:
             file_id: str = torrent_files_dict[symlink_info["target_filename"]]
             await dao.create_symlink_model(symlink_info, file_id=file_id)
             logger.info(
-                f"Added symlink: {symlink_info['target']} ->"
-                f" {symlink_info['destination']} map with rd_file_id  : {file_id}"
+                (
+                    f"Added symlink: {symlink_info['target']} ->"
+                    f" {symlink_info['destination']} map with rd_file_id  : {file_id}"
+                ),
             )
         except Exception as e:
             logger.error(f"An error occurred while creating symlink model: {e!s}")
@@ -115,14 +120,16 @@ async def process_symlink() -> None:
             await _update_symlink_db(dao, symlink_info_list)
             await asyncio.sleep(1)
             logger.info(
-                f"Successfully processed {len(symlink_info_list)} new symbolic links"
-                " from your library."
+                (
+                    f"Successfully processed {len(symlink_info_list)} new symbolic"
+                    " links from your library."
+                ),
             )
             await dao.close()
             logger.info("End symbolic links database Update.")
         except Exception as e:
             logger.error(
-                f"An error occurred while processing symbolic links refresh: {e!s}"
+                f"An error occurred while processing symbolic links refresh: {e!s}",
             )
 
 

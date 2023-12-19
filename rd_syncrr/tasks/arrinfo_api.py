@@ -18,7 +18,9 @@ class ArrInfo:
         self.sonarr = SonarrAPI(settings.sonarr_host, settings.sonarr_api_key)
 
     def _create_movie_data(
-        self, movie: Dict[str, Any], movie_file: Dict[str, Any]
+        self,
+        movie: Dict[str, Any],
+        movie_file: Dict[str, Any],
     ) -> Dict[str, Any]:
         quality = movie_file.get("quality", {}).get("quality", {})
         return {
@@ -215,7 +217,9 @@ class ArrInfo:
         return data
 
     def _update_episode_file_dict(
-        self, episode_file: JsonObject[Any], episode_info: JsonObject[Any]
+        self,
+        episode_file: JsonObject[Any],
+        episode_info: JsonObject[Any],
     ) -> None:  # type: ignore
         """Update episode file with episode info."""
         if episode_info:
@@ -224,11 +228,13 @@ class ArrInfo:
                     "episodeNumber": episode_info.get("episodeNumber"),
                     "episodeTitle": episode_info.get("title"),
                     "episodeId": episode_info.get("id"),
-                }
+                },
             )
 
     def _update_episodes_files(
-        self, episodes_files: JsonArray, episodes_info: JsonArray
+        self,
+        episodes_files: JsonArray,
+        episodes_info: JsonArray,
     ) -> None:
         """Update episodes files with missing episodes info."""
         for episode_file in episodes_files:
@@ -246,7 +252,7 @@ class ArrInfo:
             )
             if matching_episode_info is None:
                 logger.debug(
-                    f"No matching episode info found for id: {episode_file_id}"
+                    f"No matching episode info found for id: {episode_file_id}",
                 )
                 continue
             self._update_episode_file_dict(episode_file, matching_episode_info)

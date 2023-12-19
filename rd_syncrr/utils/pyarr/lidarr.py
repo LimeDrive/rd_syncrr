@@ -153,14 +153,14 @@ class LidarrAPI(BaseArrAPI):
                 quality_profile_id = self.get_quality_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Quality Profile setup"
+                    "There is no Quality Profile setup",
                 ) from exception
         if metadata_profile_id is None:
             try:
                 metadata_profile_id = self.get_metadata_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Metadata Profile setup"
+                    "There is no Metadata Profile setup",
                 ) from exception
 
         artist["id"] = 0
@@ -265,14 +265,14 @@ class LidarrAPI(BaseArrAPI):
                 quality_profile_id = self.get_quality_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Quality Profile setup"
+                    "There is no Quality Profile setup",
                 ) from exception
         if metadata_profile_id is None:
             try:
                 metadata_profile_id = self.get_metadata_profile()[0]["id"]
             except IndexError as exception:
                 raise PyarrMissingProfile(
-                    "There is no Metadata Profile setup"
+                    "There is no Metadata Profile setup",
                 ) from exception
 
         album["artist"]["metadataProfileId"] = metadata_profile_id
@@ -427,7 +427,7 @@ class LidarrAPI(BaseArrAPI):
             and trackIds is None
         ):
             raise PyarrMissingArgument(
-                "One of artistId, albumId, albumReleaseId or trackIds must be provided"
+                "One of artistId, albumId, albumReleaseId or trackIds must be provided",
             )
 
         return self._get(
@@ -465,7 +465,7 @@ class LidarrAPI(BaseArrAPI):
             and unmapped is None
         ):
             raise PyarrMissingArgument(
-                "artistId, albumId, trackFileIds or unmapped must be provided"
+                "artistId, albumId, trackFileIds or unmapped must be provided",
             )
         params: dict[str, Any] = {}
         if artistId is not None:
@@ -499,7 +499,8 @@ class LidarrAPI(BaseArrAPI):
 
     # DEL /trackfile/{ids_}
     def delete_track_file(
-        self, ids_: Union[int, list[int]]
+        self,
+        ids_: Union[int, list[int]],
     ) -> Union[Response, JsonObject, dict[Any, Any]]:
         """Delete track files. Use integer for one file or list for mass deletion.
 
@@ -647,7 +648,9 @@ class LidarrAPI(BaseArrAPI):
 
     # GET /release
     def get_release(
-        self, artistId: Optional[int] = None, albumId: Optional[int] = None
+        self,
+        artistId: Optional[int] = None,
+        albumId: Optional[int] = None,
     ) -> JsonArray:
         """Search indexers for specified fields.
 
@@ -735,7 +738,9 @@ class LidarrAPI(BaseArrAPI):
 
     # GET /retag
     def get_retag(
-        self, artistId: Optional[int] = None, albumId: Optional[int] = None
+        self,
+        artistId: Optional[int] = None,
+        albumId: Optional[int] = None,
     ) -> JsonArray:
         """Get Retag
 

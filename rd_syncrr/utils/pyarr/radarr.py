@@ -57,7 +57,9 @@ class RadarrAPI(BaseArrAPI):
 
     # GET /movie
     def get_movie(
-        self, id_: Optional[int] = None, tmdb: bool = False
+        self,
+        id_: Optional[int] = None,
+        tmdb: bool = False,
     ) -> Union[JsonArray, JsonObject]:  # sourcery skip: class-extract-method
         """Returns all movies in the database, movie based on the Radarr ID or TMDB id.
 
@@ -274,7 +276,8 @@ class RadarrAPI(BaseArrAPI):
 
     # DELETE /movie/editor
     def del_movies(
-        self, data: JsonObject
+        self,
+        data: JsonObject,
     ) -> Union[Response, JsonObject, dict[Any, Any]]:
         """The delete operation allows mass deletion of movies (and optionally files)
 
@@ -345,7 +348,8 @@ class RadarrAPI(BaseArrAPI):
 
     # DELETE /moviefile/{id}
     def del_movie_file(
-        self, id_: Union[int, list]
+        self,
+        id_: Union[int, list],
     ) -> Union[Response, JsonObject, dict[Any, Any]]:
         """Allows for deletion of a moviefile by its database ID.
 
@@ -366,7 +370,9 @@ class RadarrAPI(BaseArrAPI):
 
     # GET /history/movie
     def get_movie_history(
-        self, id_: int, event_type: Optional[RadarrEventType] = None
+        self,
+        id_: int,
+        event_type: Optional[RadarrEventType] = None,
     ) -> JsonArray:
         """Get history for a given movie in database by its database ID
 
@@ -668,7 +674,11 @@ class RadarrAPI(BaseArrAPI):
 
     # POST /release/push
     def post_release_push(
-        self, title: str, download_url: str, protocol: str, publish_date: datetime
+        self,
+        title: str,
+        download_url: str,
+        protocol: str,
+        publish_date: datetime,
     ) -> Any:
         """If the title is wanted, Radarr will grab it.
 

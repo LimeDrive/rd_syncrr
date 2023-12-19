@@ -17,15 +17,20 @@ class TorrentModel(Base):
 
     id: Mapped[str] = mapped_column(primary_key=True, nullable=False)  # noqa: A003
     hash: Mapped[str] = mapped_column(  # noqa: A003
-        String(length=40), nullable=False, index=True
+        String(length=40),
+        nullable=False,
+        index=True,
     )
     filename: Mapped[str] = mapped_column(String(length=400), nullable=False)
     added: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
     )
 
     files: Mapped[Optional[list["TorrentFileModel"]]] = relationship(
-        "TorrentFileModel", back_populates="torrent"
+        "TorrentFileModel",
+        back_populates="torrent",
     )
 
 
@@ -41,7 +46,9 @@ class RadarrMovieModel(Base):
         default=lambda: shortuuid.ShortUUID().random(length=18),
     )
     added: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
     )
     mediaType: Mapped[str] = mapped_column(String, nullable=False)
     movieId: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -60,12 +67,15 @@ class RadarrMovieModel(Base):
     path: Mapped[str] = mapped_column(String, nullable=False, index=True)
     fileId: Mapped[int] = mapped_column(Integer, nullable=True)
     symlink_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("local_symlinks.id")
+        String,
+        ForeignKey("local_symlinks.id"),
     )
 
     # Update auto on insert in SymLinkModel
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
-        "TorrentFileModel", back_populates="radarr_info", uselist=False
+        "TorrentFileModel",
+        back_populates="radarr_info",
+        uselist=False,
     )
     symlink: Mapped[Optional["SymlinkModel"]] = relationship(
         "SymlinkModel",
@@ -87,7 +97,9 @@ class SonarrEpisodeModel(Base):
         default=lambda: shortuuid.ShortUUID().random(length=18),
     )
     added: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
     )
     mediaType: Mapped[str] = mapped_column(String, nullable=False)
     serieId: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -109,7 +121,8 @@ class SonarrEpisodeModel(Base):
     episodefileId: Mapped[int] = mapped_column(Integer, nullable=True)
     episodeId: Mapped[int] = mapped_column(Integer, nullable=True)
     symlink_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("local_symlinks.id")
+        String,
+        ForeignKey("local_symlinks.id"),
     )
 
     # Update auto on insert in SymLinkModel
@@ -137,7 +150,9 @@ class SymlinkModel(Base):
         default=lambda: shortuuid.ShortUUID().random(length=12),
     )
     added: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
     )
     target: Mapped[str] = mapped_column(String, nullable=False, index=True)
     target_filename: Mapped[str] = mapped_column(String, nullable=False)
@@ -145,13 +160,16 @@ class SymlinkModel(Base):
     destination_filename: Mapped[str] = mapped_column(String, nullable=False)
 
     rd_file: Mapped["TorrentFileModel"] = relationship(
-        "TorrentFileModel", back_populates="symlink"
+        "TorrentFileModel",
+        back_populates="symlink",
     )
     sonarr_info: Mapped[Optional["SonarrEpisodeModel"]] = relationship(
-        "SonarrEpisodeModel", back_populates="symlink"
+        "SonarrEpisodeModel",
+        back_populates="symlink",
     )
     radarr_info: Mapped[Optional["RadarrMovieModel"]] = relationship(
-        "RadarrMovieModel", back_populates="symlink"
+        "RadarrMovieModel",
+        back_populates="symlink",
     )
 
 
@@ -169,19 +187,25 @@ class TorrentFileModel(Base):
     path: Mapped[str] = mapped_column(String(length=600), nullable=False)
     bytes: Mapped[int] = mapped_column(Integer, nullable=False)  # noqa: A003
     added: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
     )
     torrent_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("rd_torrents.id")
+        String,
+        ForeignKey("rd_torrents.id"),
     )
     symlink_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("local_symlinks.id")
+        String,
+        ForeignKey("local_symlinks.id"),
     )
     radarr_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("radarr_movies.id")
+        String,
+        ForeignKey("radarr_movies.id"),
     )
     sonarr_id: Mapped[Optional[str]] = mapped_column(
-        String, ForeignKey("sonarr_series.id")
+        String,
+        ForeignKey("sonarr_series.id"),
     )
 
     torrent: Mapped[Optional["TorrentModel"]] = relationship(

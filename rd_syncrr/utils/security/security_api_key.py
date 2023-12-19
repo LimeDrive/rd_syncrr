@@ -9,10 +9,14 @@ from rd_syncrr.services.security_db import security_db_accsess
 API_KEY_NAME = "api-key"
 
 api_key_query = APIKeyQuery(
-    name=API_KEY_NAME, scheme_name="API key query", auto_error=False
+    name=API_KEY_NAME,
+    scheme_name="API key query",
+    auto_error=False,
 )
 api_key_header = APIKeyHeader(
-    name=API_KEY_NAME, scheme_name="API key header", auto_error=False
+    name=API_KEY_NAME,
+    scheme_name="API key header",
+    auto_error=False,
 )
 
 
@@ -34,5 +38,6 @@ async def api_key_security(
 
     else:
         raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Wrong, revoked, or expired API key."
+            status_code=HTTP_403_FORBIDDEN,
+            detail="Wrong, revoked, or expired API key.",
         )

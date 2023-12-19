@@ -75,7 +75,10 @@ class SonarrAPI(BaseArrAPI):
 
     # GET /episode
     def get_episode(
-        self, id_: int, series: bool = False, ep_id: bool = False
+        self,
+        id_: int,
+        series: bool = False,
+        ep_id: bool = False,
     ) -> JsonObject:
         """Get episodes by ID or series
 
@@ -164,7 +167,9 @@ class SonarrAPI(BaseArrAPI):
 
     # PUT /episode/monitor
     def upd_episode_monitor(
-        self, episode_ids: list[int], monitored: bool = True
+        self,
+        episode_ids: list[int],
+        monitored: bool = True,
     ) -> JsonArray:
         """Update episode monitored status
 
@@ -203,7 +208,9 @@ class SonarrAPI(BaseArrAPI):
 
     # GET /episodefile/{id}
     def get_episode_file(
-        self, id_: int, series: bool = False
+        self,
+        id_: int,
+        series: bool = False,
     ) -> Union[JsonArray, JsonObject]:
         """Returns episode file information for specified id
 
@@ -343,7 +350,9 @@ class SonarrAPI(BaseArrAPI):
     ## PARSE
 
     def get_parse_title_path(
-        self, title: Optional[str] = None, path: Optional[str] = None
+        self,
+        title: Optional[str] = None,
+        path: Optional[str] = None,
     ) -> JsonObject:
         """Returns the result of parsing a title or path. series and episodes will be
         returned only if the parsing matches to a specific series and one or more
@@ -445,7 +454,11 @@ class SonarrAPI(BaseArrAPI):
     # TODO: find response
     # @alias("push_release", "6.0.0")
     def post_release_push(
-        self, title: str, download_url: str, protocol: str, publish_date: datetime
+        self,
+        title: str,
+        download_url: str,
+        protocol: str,
+        publish_date: datetime,
     ) -> Any:
         """If the title is wanted, Sonarr will grab it.
 
@@ -469,7 +482,9 @@ class SonarrAPI(BaseArrAPI):
     ## SERIES
     # GET /series and /series/{id}
     def get_series(
-        self, id_: Optional[int] = None, tvdb: Optional[bool] = False
+        self,
+        id_: Optional[int] = None,
+        tvdb: Optional[bool] = False,
     ) -> Union[JsonArray, JsonObject]:
         """Returns all series in your collection or the series with the matching
         series ID if one is found.
@@ -552,7 +567,9 @@ class SonarrAPI(BaseArrAPI):
 
     # DELETE /series/{id}
     def del_series(
-        self, id_: int, delete_files: bool = False
+        self,
+        id_: int,
+        delete_files: bool = False,
     ) -> Union[Response, JsonObject, dict[Any, Any]]:
         """Delete the series with the given ID
 
@@ -569,7 +586,9 @@ class SonarrAPI(BaseArrAPI):
 
     # GET /series/lookup
     def lookup_series(
-        self, term: Optional[str] = None, id_: Optional[int] = None
+        self,
+        term: Optional[str] = None,
+        id_: Optional[int] = None,
     ) -> JsonArray:
         """Searches for new shows on TheTVDB.com utilizing sonarr.tv's caching and augmentation proxy.
 
@@ -652,7 +671,8 @@ class SonarrAPI(BaseArrAPI):
 
     # GET /languageprofile/{id}
     def get_language_profile(
-        self, id_: Optional[int] = None
+        self,
+        id_: Optional[int] = None,
     ) -> Union[JsonArray, dict[Any, Any]]:
         """Gets all language profiles or specific one with id
 
@@ -677,7 +697,8 @@ class SonarrAPI(BaseArrAPI):
 
     # GET /languageprofile/schema/{id}
     def get_language_profile_schema(
-        self, id_: Optional[int] = None
+        self,
+        id_: Optional[int] = None,
     ) -> Union[JsonArray, dict[Any, Any]]:
         """Gets all language profile schemas or specific one with id
 
@@ -693,7 +714,11 @@ class SonarrAPI(BaseArrAPI):
 
     # POST /qualityprofile
     def add_quality_profile(
-        self, name: str, upgrades_allowed: bool, cutoff: int, items: list
+        self,
+        name: str,
+        upgrades_allowed: bool,
+        cutoff: int,
+        items: list,
     ) -> JsonObject:
         """Add new quality profile
 

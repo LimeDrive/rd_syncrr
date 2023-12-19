@@ -29,7 +29,9 @@ async def update_torrents_list_info() -> UpdateResponse:
 
 
 @router.post(
-    "/refresh/sync", dependencies=[Depends(secret_based_security)], status_code=202
+    "/refresh/sync",
+    dependencies=[Depends(secret_based_security)],
+    status_code=202,
 )
 async def refresh_instance_sync() -> dict[str, str]:
     """Trigger an update of torrents list from your synced RD account."""
@@ -51,17 +53,20 @@ async def test_hash_in_rd_cache(
             return aviability
         else:
             raise HTTPException(  # noqa: TRY301
-                status_code=404, detail="Torrent not available"
+                status_code=404,
+                detail="Torrent not available",
             )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))  # noqa: B904, TRY200
 
 
 @router.post(
-    "/add/magnet", dependencies=[Depends(secret_based_security)], status_code=202
+    "/add/magnet",
+    dependencies=[Depends(secret_based_security)],
+    status_code=202,
 )
 async def add_magnet_to_rd(
-    magnet: str = Query(..., description="The magnet link to add to RD.")
+    magnet: str = Query(..., description="The magnet link to add to RD."),
 ) -> dict[str, str]:
     """Add a magnet to RD."""
     return {"hello": "world"}
