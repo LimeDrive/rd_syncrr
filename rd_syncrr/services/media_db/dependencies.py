@@ -13,8 +13,11 @@ async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession, None]
     """
     session: AsyncSession = request.app.state.db_session_factory()
 
-    try:
+    async with session.begin():
         yield session
-    finally:
-        await session.commit()
-        await session.close()
+
+    # try:
+    #     yield session
+    # finally:
+    #     await session.commit()
+    #     await session.close()

@@ -9,10 +9,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from rd_syncrr.logging import logger
 from rd_syncrr.services.media_db.dao.media_dao import MediaDAO
 from rd_syncrr.settings import settings
-from rd_syncrr.tasks import (
-    process_mediainfo,
-    process_torrents,
-)
+from rd_syncrr.tasks import process_jsonfile, process_mediainfo, process_torrents
 
 
 def init_scheduler() -> AsyncIOScheduler:
@@ -43,6 +40,7 @@ async def database_update_job() -> None:
         logger.info("Updating database...")
         await process_torrents(dao)
         await process_mediainfo(dao)
+        await process_jsonfile(dao)
         await dao.close()
         logger.info("Database updated.")
 

@@ -3,6 +3,7 @@ from asyncio import current_task
 from collections.abc import Sequence
 from typing import Any, List, Optional  # noqa: UP035
 
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -12,6 +13,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from rd_syncrr.logging import logger
+from rd_syncrr.services.media_db.dependencies import get_db_session
 from rd_syncrr.services.media_db.models.media_model import (
     RadarrMovieModel,
     SonarrEpisodeModel,
@@ -25,7 +27,7 @@ from rd_syncrr.settings import settings
 class MediaDAO:
     """Class for accessing torrent table."""
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_db_session)):  # noqa: B008
         self.session = session
 
     @classmethod
@@ -156,17 +158,20 @@ class MediaDAO:
             logger.error(f"An error occurred while adding file to torrent: {e!s}")
             await self.session.rollback()
 
-    async def get_all_torrents(self, limit: int, offset: int) -> Sequence[TorrentModel]:
+    async def get_all_torrents(
+        self,
+        limit: Optional[int] = 50,
+        offset: Optional[int] = 0,
+    ) -> Sequence[TorrentModel]:
         """
-        Get all torrent models with limit/offset pagination.
-        :param limit: limit of torrents.
-        :param offset: offset of torrents.
-        :return: list of torrent models.
+        Get all torrents from the database.
+        :param limit: The limit of results to return.
+        :param offset: The offset of results to return.
+        :return: List of torrent models.
         """
-        query = select(TorrentModel).limit(limit).offset(offset)
+        query = select(TorrentModel).offset(offset).limit(limit)
         result = await self.session.execute(query)
-        torrents = result.scalars().all()
-        return torrents
+        return result.scalars().all()
 
     async def get_all_torrents_hashes(self) -> Optional[list[str]]:
         """
@@ -332,3 +337,29 @@ class MediaDAO:
         if not rows:
             return None
         return [row[0] for row in rows]
+
+    async def get_radarr_info_by_id(
+        self,
+        id: str,  # noqa: A002
+    ) -> Optional[RadarrMovieModel]:
+        """
+        Get a specific Radarr movie by ID.
+        :param id: ID of the Radarr movie.
+        :return: Radarr movie model or None if not found.
+        """
+        query = select(RadarrMovieModel).where(RadarrMovieModel.id == id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def get_sonarr_info_by_id(
+        self,
+        id: str,  # noqa: A002
+    ) -> Optional[SonarrEpisodeModel]:
+        """
+        Get a specific Sonarr episode by ID.
+        :param id: ID of the Sonarr episode.
+        :return: Sonarr episode model or None if not found.
+        """
+        query = select(SonarrEpisodeModel).where(SonarrEpisodeModel.id == id)
+        result = await self.session.execute(query)
+        return result.scalars().first()

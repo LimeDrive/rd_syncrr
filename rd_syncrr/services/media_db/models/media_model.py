@@ -109,7 +109,7 @@ class SonarrEpisodeModel(Base):
     episodeTitle: Mapped[str] = mapped_column(String, nullable=True)
     episodeNumber: Mapped[int] = mapped_column(Integer, nullable=False)
     releaseGroup: Mapped[str] = mapped_column(String, nullable=True)
-    tvdbId: Mapped[str] = mapped_column(String, nullable=False)
+    tvdbId: Mapped[int] = mapped_column(String, nullable=False)
     imdbId: Mapped[str] = mapped_column(String, nullable=True)
     tvMazeId: Mapped[int] = mapped_column(Integer, nullable=True)
     genres: Mapped[List[str]] = mapped_column(JSON, nullable=True)

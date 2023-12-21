@@ -4,9 +4,9 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from rd_syncrr.tasks import process_torrents
+from rd_syncrr.tasks.torrents_action import check_hash_availability
 from rd_syncrr.utils.security import secret_based_security
-from rd_syncrr.utils.tasks import process_torrents
-from rd_syncrr.utils.tasks.torrents_action import check_hash_availability
 from rd_syncrr.web.api.admin.schemas import TestedHash, UpdateResponse
 
 router = APIRouter()
@@ -21,7 +21,7 @@ router = APIRouter()
 async def update_torrents_list_info() -> UpdateResponse:
     """Trigger an update of torrents list from your RD account."""
     try:
-        await process_torrents()
+        await process_torrents()  # type: ignore
         message = UpdateResponse(message="torrents list update triggered")
         return message  # noqa: TRY300
     except Exception as e:
