@@ -237,12 +237,10 @@ class MediaDAO:
         result = await self.session.execute(
             select(TorrentFileModel.id, TorrentFileModel.path),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {
-            os.path.basename(filename): file_id
-            for file_id, filename in result.scalars().all()
-        }
+        return {os.path.basename(filename): file_id for file_id, filename in rows}
 
     async def get_all_torrents_files(self) -> Sequence[TorrentFileModel]:
         """
@@ -292,11 +290,12 @@ class MediaDAO:
         result = await self.session.execute(
             select(SymlinkModel.id, SymlinkModel.destination_filename),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {  # noqa: C416
-            symlink_id: destination_filename
-            for symlink_id, destination_filename in result.scalars().all()
+        return {
+            destination_filename: symlink_id
+            for symlink_id, destination_filename in rows
         }
 
     async def get_symlink_target_filename_dict(self) -> Optional[dict[str, str]]:
@@ -307,12 +306,10 @@ class MediaDAO:
         result = await self.session.execute(
             select(SymlinkModel.id, SymlinkModel.target_filename),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {  # noqa: C416
-            symlink_id: target_filename
-            for symlink_id, target_filename in result.scalars().all()
-        }
+        return {target_filename: symlink_id for symlink_id, target_filename in rows}
 
     async def get_sonarr_episodes_file_id(self) -> Optional[List[str]]:
         """

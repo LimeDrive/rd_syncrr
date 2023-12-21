@@ -53,7 +53,8 @@ async def _list_torrents_to_json(
 
 
 async def _fetch_files_info(
-    dao: MediaDAO, files: Sequence[TorrentFileModel]
+    dao: MediaDAO,
+    files: Sequence[TorrentFileModel],
 ) -> list[dict[str, Any]] | None:
     """Fetch files info from database."""
 
@@ -175,7 +176,9 @@ async def process_jsonfile(dao: MediaDAO) -> None:
 
 
 async def process_torrents_data(
-    dao: MediaDAO, limit: int = 50, offset: int = 0
+    dao: MediaDAO,
+    limit: int = 50,
+    offset: int = 0,
 ) -> List[Dict[str, Any]]:
     """Get torrents info from database.
 
