@@ -72,12 +72,14 @@ async def _update_symlink_db(
     torrent_files_dict = await dao.get_torrent_files_filename_dict()
     if not torrent_files_dict:
         logger.info(
+
             "No torrent files found in your database. Skipping the symlink update.",
         )
         return
     for symlink_info in symlink_info_list:
         if symlink_info["target_filename"] not in torrent_files_dict:
             logger.info(
+
                 (
                     f"File {symlink_info['target_filename']} not found in Torrent Files"
                     " Data. Skipping the symlink update."

@@ -140,7 +140,6 @@ class SymlinkModel(Base):
     rd_file: Mapped["TorrentFileModel"] = relationship(
         "TorrentFileModel",
         back_populates="symlink",
-    )
 
 
 class TorrentFileModel(Base):
