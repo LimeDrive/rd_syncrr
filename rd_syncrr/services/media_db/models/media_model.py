@@ -66,22 +66,11 @@ class RadarrMovieModel(Base):
     relativePath: Mapped[str] = mapped_column(String, nullable=True)
     path: Mapped[str] = mapped_column(String, nullable=False, index=True)
     fileId: Mapped[int] = mapped_column(Integer, nullable=True)
-    symlink_id: Mapped[Optional[str]] = mapped_column(
-        String,
-        ForeignKey("local_symlinks.id"),
-    )
 
-    # Update auto on insert in SymLinkModel
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
         "TorrentFileModel",
         back_populates="radarr_info",
         uselist=False,
-    )
-    symlink: Mapped[Optional["SymlinkModel"]] = relationship(
-        "SymlinkModel",
-        back_populates="radarr_info",
-        uselist=False,
-        foreign_keys="RadarrMovieModel.symlink_id",
     )
 
 
@@ -120,21 +109,10 @@ class SonarrEpisodeModel(Base):
     path: Mapped[str] = mapped_column(String, nullable=False, index=True)
     episodefileId: Mapped[int] = mapped_column(Integer, nullable=True)
     episodeId: Mapped[int] = mapped_column(Integer, nullable=True)
-    symlink_id: Mapped[Optional[str]] = mapped_column(
-        String,
-        ForeignKey("local_symlinks.id"),
-    )
 
-    # Update auto on insert in SymLinkModel
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
         "TorrentFileModel",
         back_populates="sonarr_info",
-    )
-    symlink: Mapped[Optional["SymlinkModel"]] = relationship(
-        "SymlinkModel",
-        back_populates="sonarr_info",
-        uselist=False,
-        foreign_keys="SonarrEpisodeModel.symlink_id",
     )
 
 
@@ -161,14 +139,6 @@ class SymlinkModel(Base):
 
     rd_file: Mapped["TorrentFileModel"] = relationship(
         "TorrentFileModel",
-        back_populates="symlink",
-    )
-    sonarr_info: Mapped[Optional["SonarrEpisodeModel"]] = relationship(
-        "SonarrEpisodeModel",
-        back_populates="symlink",
-    )
-    radarr_info: Mapped[Optional["RadarrMovieModel"]] = relationship(
-        "RadarrMovieModel",
         back_populates="symlink",
     )
 
