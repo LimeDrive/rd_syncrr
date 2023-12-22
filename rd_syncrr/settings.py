@@ -45,7 +45,6 @@ class Settings(BaseSettings):
 
     # file
     all_torrents_file: str = os.path.join(config_path, "all_torrents.json")
-    latest_torrents_file: str = os.path.join(config_path, "latest_torrents.json")
 
     # Real-Debrid
     rd_token: str | None = None

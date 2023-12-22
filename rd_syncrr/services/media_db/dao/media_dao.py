@@ -3,6 +3,7 @@ from asyncio import current_task
 from collections.abc import Sequence
 from typing import Any, List, Optional  # noqa: UP035
 
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -12,6 +13,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from rd_syncrr.logging import logger
+from rd_syncrr.services.media_db.dependencies import get_db_session
 from rd_syncrr.services.media_db.models.media_model import (
     RadarrMovieModel,
     SonarrEpisodeModel,
@@ -25,7 +27,7 @@ from rd_syncrr.settings import settings
 class MediaDAO:
     """Class for accessing torrent table."""
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_db_session)):  # noqa: B008
         self.session = session
 
     @classmethod
@@ -156,17 +158,20 @@ class MediaDAO:
             logger.error(f"An error occurred while adding file to torrent: {e!s}")
             await self.session.rollback()
 
-    async def get_all_torrents(self, limit: int, offset: int) -> Sequence[TorrentModel]:
+    async def get_all_torrents(
+        self,
+        limit: Optional[int] = 50,
+        offset: Optional[int] = 0,
+    ) -> Sequence[TorrentModel]:
         """
-        Get all torrent models with limit/offset pagination.
-        :param limit: limit of torrents.
-        :param offset: offset of torrents.
-        :return: list of torrent models.
+        Get all torrents from the database.
+        :param limit: The limit of results to return.
+        :param offset: The offset of results to return.
+        :return: List of torrent models.
         """
-        query = select(TorrentModel).limit(limit).offset(offset)
+        query = select(TorrentModel).offset(offset).limit(limit)
         result = await self.session.execute(query)
-        torrents = result.scalars().all()
-        return torrents
+        return result.scalars().all()
 
     async def get_all_torrents_hashes(self) -> Optional[list[str]]:
         """
@@ -209,6 +214,30 @@ class MediaDAO:
         result = await self.session.execute(query)
         return result.scalars().first()
 
+    async def get_files_unlinked_media(self) -> Optional[Sequence[TorrentFileModel]]:
+        """
+        Get all torrent files that are not linked to any torrents.
+        :return: List of torrent file models.
+        """
+        query = select(TorrentFileModel).where(
+            TorrentFileModel.radarr_id == None,  # noqa: E711
+            TorrentFileModel.sonarr_id == None,  # noqa: E711
+            TorrentFileModel.symlink_id != None,  # noqa: E711
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+    async def get_files_unlinked_symlink(self) -> Optional[Sequence[TorrentFileModel]]:
+        """
+        Get all torrent files that are not linked to any torrents.
+        :return: List of torrent file models.
+        """
+        query = select(TorrentFileModel).where(
+            TorrentFileModel.symlink_id == None,  # noqa: E711
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
     async def get_files_from_torrent_id(
         self,
         torrent_id: str,
@@ -232,12 +261,10 @@ class MediaDAO:
         result = await self.session.execute(
             select(TorrentFileModel.id, TorrentFileModel.path),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {
-            os.path.basename(filename): file_id
-            for file_id, filename in result.scalars().all()
-        }
+        return {os.path.basename(filename): file_id for file_id, filename in rows}
 
     async def get_all_torrents_files(self) -> Sequence[TorrentFileModel]:
         """
@@ -287,11 +314,12 @@ class MediaDAO:
         result = await self.session.execute(
             select(SymlinkModel.id, SymlinkModel.destination_filename),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {  # noqa: C416
-            symlink_id: destination_filename
-            for symlink_id, destination_filename in result.scalars().all()
+        return {
+            destination_filename: symlink_id
+            for symlink_id, destination_filename in rows
         }
 
     async def get_symlink_target_filename_dict(self) -> Optional[dict[str, str]]:
@@ -302,12 +330,10 @@ class MediaDAO:
         result = await self.session.execute(
             select(SymlinkModel.id, SymlinkModel.target_filename),
         )
-        if not result.scalars().all():
+        rows = result.all()
+        if not rows:
             return None
-        return {  # noqa: C416
-            symlink_id: target_filename
-            for symlink_id, target_filename in result.scalars().all()
-        }
+        return {target_filename: symlink_id for symlink_id, target_filename in rows}
 
     async def get_sonarr_episodes_file_id(self) -> Optional[List[str]]:
         """
@@ -332,3 +358,81 @@ class MediaDAO:
         if not rows:
             return None
         return [row[0] for row in rows]
+
+    async def get_radarr_info_by_id(
+        self,
+        id: str,  # noqa: A002
+    ) -> Optional[RadarrMovieModel]:
+        """
+        Get a specific Radarr movie by ID.
+        :param id: ID of the Radarr movie.
+        :return: Radarr movie model or None if not found.
+        """
+        query = select(RadarrMovieModel).where(RadarrMovieModel.id == id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def get_sonarr_info_by_id(
+        self,
+        id: str,  # noqa: A002
+    ) -> Optional[SonarrEpisodeModel]:
+        """
+        Get a specific Sonarr episode by ID.
+        :param id: ID of the Sonarr episode.
+        :return: Sonarr episode model or None if not found.
+        """
+        query = select(SonarrEpisodeModel).where(SonarrEpisodeModel.id == id)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def check_radarr_path_exists(self, path: str) -> Optional[RadarrMovieModel]:
+        """
+        Check if a Radarr path exists in the database.
+        :param path: Path to check.
+        :return: Radarr movie model or None if not found.
+        """
+        query = select(RadarrMovieModel).where(RadarrMovieModel.path == path)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def check_sonarr_path_exists(self, path: str) -> Optional[SonarrEpisodeModel]:
+        """
+        Check if a Sonarr path exists in the database.
+        :param path: Path to check.
+        :return: Sonarr episode model or None if not found.
+        """
+        query = select(SonarrEpisodeModel).where(SonarrEpisodeModel.path == path)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def link_file_to_radarr(self, radarr_id: str, file_id: str) -> None:
+        """
+        Link a torrent to a Radarr movie.
+        :param radarr_id: ID of the Radarr movie.
+        :param torrent_id: ID of the torrent.
+        """
+        try:
+            radarr_movie = await self.session.get(RadarrMovieModel, radarr_id)
+            torrent_file = await self.session.get(TorrentFileModel, file_id)
+            if radarr_movie and torrent_file:
+                torrent_file.radarr_info = radarr_movie
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking torrent to Radarr: {e!s}")
+            await self.session.rollback()
+
+    async def link_file_to_sonarr(self, sonarr_id: str, file_id: str) -> None:
+        """
+        Link a torrent to a Sonarr episode.
+        :param sonarr_id: ID of the Sonarr episode.
+        :param torrent_id: ID of the torrent.
+        """
+        try:
+            sonarr_episode = await self.session.get(SonarrEpisodeModel, sonarr_id)
+            torrent_file = await self.session.get(TorrentFileModel, file_id)
+            if sonarr_episode and torrent_file:
+                torrent_file.sonarr_info = sonarr_episode
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking torrent to Sonarr: {e!s}")
+            await self.session.rollback()

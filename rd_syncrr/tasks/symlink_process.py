@@ -1,5 +1,5 @@
 """Symlink process task module."""
-import asyncio
+
 import os
 from typing import Any
 
@@ -27,7 +27,7 @@ async def _scan_link_directory(path: str) -> list[dict[str, str]] | None:
                 if symlink_info is not None:
                     symlink_info_list.append(symlink_info)
     if not symlink_info_list:
-        logger.warning("No symbolic links found in your library.")
+        logger.info("No symbolic links found in your library.")
         return None
     logger.debug(f"Symlink list: {symlink_info_list}")
     return symlink_info_list
@@ -71,13 +71,13 @@ async def _update_symlink_db(
     """
     torrent_files_dict = await dao.get_torrent_files_filename_dict()
     if not torrent_files_dict:
-        logger.warning(
+        logger.info(
             "No torrent files found in your database. Skipping the symlink update.",
         )
         return
     for symlink_info in symlink_info_list:
         if symlink_info["target_filename"] not in torrent_files_dict:
-            logger.warning(
+            logger.info(
                 (
                     f"File {symlink_info['target_filename']} not found in Torrent Files"
                     " Data. Skipping the symlink update."
@@ -97,40 +97,37 @@ async def _update_symlink_db(
             logger.error(f"An error occurred while creating symlink model: {e!s}")
 
 
-async def process_symlink() -> None:
+async def process_symlink(dao: MediaDAO) -> None:
     """
     Process the symbolic links.
     """
     symlink_info_list = await _scan_link_directory(settings.symlink_path)
     if not symlink_info_list:
         return
-    async with await MediaDAO.create() as dao:
-        try:
-            logger.info("Start symbolic links database Update.")
-            old_symlinks = await dao.get_symlink_destination_filename_dict()
-            if old_symlinks:
-                symlink_info_list = [
-                    symlink_info
-                    for symlink_info in symlink_info_list
-                    if symlink_info["destination_filename"] not in old_symlinks
-                ]
-                if not symlink_info_list:
-                    logger.info("All symbolic links are already in the database.")
-                    return
-            await _update_symlink_db(dao, symlink_info_list)
-            await asyncio.sleep(1)
-            logger.info(
-                (
-                    f"Successfully processed {len(symlink_info_list)} new symbolic"
-                    " links from your library."
-                ),
-            )
-            await dao.close()
-            logger.info("End symbolic links database Update.")
-        except Exception as e:
-            logger.error(
-                f"An error occurred while processing symbolic links refresh: {e!s}",
-            )
+    try:
+        logger.info("Start symbolic links database Update.")
+        old_symlinks = await dao.get_symlink_destination_filename_dict()
+        if old_symlinks:
+            symlink_info_list = [
+                symlink_info
+                for symlink_info in symlink_info_list
+                if symlink_info["destination_filename"] not in old_symlinks
+            ]
+            if not symlink_info_list:
+                logger.info("All symbolic links are already in the database.")
+                return
+        await _update_symlink_db(dao, symlink_info_list)
+        logger.info(
+            (
+                f"Successfully processed {len(symlink_info_list)} new symbolic"
+                " links from your library."
+            ),
+        )
+        logger.info("End symbolic links database Update.")
+    except Exception as e:
+        logger.error(
+            f"An error occurred while processing symbolic links refresh: {e!s}",
+        )
 
 
 # if __name__ == "__main__":

@@ -1,81 +1,35 @@
-import json
-from typing import Any
+from typing import List  # noqa: UP035
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
+from rd_syncrr.services.media_db.dao import MediaDAO
+from rd_syncrr.tasks import process_torrents_data
 from rd_syncrr.utils.security import api_key_security
-from rd_syncrr.web.api.sync.schema import Torrent
+from rd_syncrr.web.api.sync.schema import TorrentModelDTO
 
 router = APIRouter()
 
 
 @router.get(
-    "/fetchAll",
+    "/torrents",
     dependencies=[Depends(api_key_security)],
-    response_model=list[Torrent],
+    response_model=List[TorrentModelDTO],
 )
-async def get_all_torrents() -> Any:
-    """
-    Fetches all downloaded torrents from rd.
-
-    Returns:
-        dict: The downloaded torrents.
-
-    Raises:
-        HTTPException: If the file is not found.
-        HTTPException: If the JSON is invalid.
-        HTTPException: If an unexpected error occurs.
-    """
+async def torrents(
+    dao: MediaDAO = Depends(),  # noqa: B008
+    offset: int = Query(
+        0,
+        alias="offset",
+        description="the offset to start from",
+    ),
+    limit: int = Query(
+        50,
+        alias="limit",
+        description="the number of torrents to return",
+    ),
+) -> List[TorrentModelDTO]:  # type: ignore
     try:
-        with open(
-            "/Users/limehub/Documents/Github/rd_syncrr/rd_syncrr/utils/tasks/all_torrents.json",
-        ) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise HTTPException(  # noqa: B904, TRY200
-            status_code=404,
-            detail="File not found",
-        )
-    except json.JSONDecodeError:
-        raise HTTPException(  # noqa: B904, TRY200
-            status_code=400,
-            detail="Invalid JSON",
-        )
+        async with dao:
+            return await process_torrents_data(dao, limit=limit, offset=offset)  # type: ignore
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))  # noqa: B904, TRY200
-
-
-@router.get(
-    "/fetchLatest",
-    dependencies=[Depends(api_key_security)],
-    response_model=list[Torrent],
-)
-async def get_latest_torrents() -> Any:
-    """
-    Fetches the 25 latest downloaded torrents from rd.
-
-    Returns:
-        dict: The latest downloaded torrents.
-
-    Raises:
-        HTTPException: If the file is not found.
-        HTTPException: If the JSON is invalid.
-        HTTPException: If an unexpected error occurs.
-    """
-    try:
-        with open(
-            "/Users/limehub/Documents/Github/rd_syncrr/rd_syncrr/utils/tasks/latest_torrents.json",
-        ) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise HTTPException(  # noqa: B904, TRY200
-            status_code=404,
-            detail="File not found",
-        )
-    except json.JSONDecodeError:
-        raise HTTPException(  # noqa: B904, TRY200
-            status_code=400,
-            detail="Invalid JSON",
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))  # noqa: B904, TRY200
+        raise HTTPException(status_code=500, detail=str(e)) from e

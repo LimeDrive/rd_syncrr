@@ -10,8 +10,11 @@ from rd_syncrr.logging import logger
 from rd_syncrr.services.media_db.dao.media_dao import MediaDAO
 from rd_syncrr.settings import settings
 from rd_syncrr.tasks import (
+    process_jsonfile,
     process_mediainfo,
+    process_symlink,
     process_torrents,
+    process_unlinked_media_info,
 )
 
 
@@ -41,9 +44,18 @@ async def database_update_job() -> None:
     """Initialize database update job."""
     async with await MediaDAO.create() as dao:
         logger.info("Updating database...")
+        logger.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
         await process_torrents(dao)
+        logger.info("----------------------------------------------------------")
         await process_mediainfo(dao)
+        logger.info("----------------------------------------------------------")
+        await process_symlink(dao)
+        logger.info("----------------------------------------------------------")
+        await process_unlinked_media_info(dao)
+        logger.info("----------------------------------------------------------")
+        await process_jsonfile(dao)
         await dao.close()
+        logger.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
         logger.info("Database updated.")
 
 

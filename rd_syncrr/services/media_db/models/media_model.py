@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Any, List  # noqa: UP035
+from typing import List  # noqa: UP035
 
 import shortuuid
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, event
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Optional, String
 
 from ..base import Base
@@ -66,22 +66,11 @@ class RadarrMovieModel(Base):
     relativePath: Mapped[str] = mapped_column(String, nullable=True)
     path: Mapped[str] = mapped_column(String, nullable=False, index=True)
     fileId: Mapped[int] = mapped_column(Integer, nullable=True)
-    symlink_id: Mapped[Optional[str]] = mapped_column(
-        String,
-        ForeignKey("local_symlinks.id"),
-    )
 
-    # Update auto on insert in SymLinkModel
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
         "TorrentFileModel",
         back_populates="radarr_info",
         uselist=False,
-    )
-    symlink: Mapped[Optional["SymlinkModel"]] = relationship(
-        "SymlinkModel",
-        back_populates="radarr_info",
-        uselist=False,
-        foreign_keys="RadarrMovieModel.symlink_id",
     )
 
 
@@ -109,7 +98,7 @@ class SonarrEpisodeModel(Base):
     episodeTitle: Mapped[str] = mapped_column(String, nullable=True)
     episodeNumber: Mapped[int] = mapped_column(Integer, nullable=False)
     releaseGroup: Mapped[str] = mapped_column(String, nullable=True)
-    tvdbId: Mapped[str] = mapped_column(String, nullable=False)
+    tvdbId: Mapped[int] = mapped_column(String, nullable=False)
     imdbId: Mapped[str] = mapped_column(String, nullable=True)
     tvMazeId: Mapped[int] = mapped_column(Integer, nullable=True)
     genres: Mapped[List[str]] = mapped_column(JSON, nullable=True)
@@ -120,21 +109,10 @@ class SonarrEpisodeModel(Base):
     path: Mapped[str] = mapped_column(String, nullable=False, index=True)
     episodefileId: Mapped[int] = mapped_column(Integer, nullable=True)
     episodeId: Mapped[int] = mapped_column(Integer, nullable=True)
-    symlink_id: Mapped[Optional[str]] = mapped_column(
-        String,
-        ForeignKey("local_symlinks.id"),
-    )
 
-    # Update auto on insert in SymLinkModel
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
         "TorrentFileModel",
         back_populates="sonarr_info",
-    )
-    symlink: Mapped[Optional["SymlinkModel"]] = relationship(
-        "SymlinkModel",
-        back_populates="sonarr_info",
-        uselist=False,
-        foreign_keys="SonarrEpisodeModel.symlink_id",
     )
 
 
@@ -162,14 +140,7 @@ class SymlinkModel(Base):
     rd_file: Mapped["TorrentFileModel"] = relationship(
         "TorrentFileModel",
         back_populates="symlink",
-    )
-    sonarr_info: Mapped[Optional["SonarrEpisodeModel"]] = relationship(
-        "SonarrEpisodeModel",
-        back_populates="symlink",
-    )
-    radarr_info: Mapped[Optional["RadarrMovieModel"]] = relationship(
-        "RadarrMovieModel",
-        back_populates="symlink",
+        uselist=False,
     )
 
 
@@ -231,55 +202,3 @@ class TorrentFileModel(Base):
         uselist=False,
         foreign_keys="TorrentFileModel.sonarr_id",
     )
-
-
-def update_torrent_file(mapper: Any, connection: Any, target: SymlinkModel) -> None:
-    session = Session(bind=connection)
-    if target.radarr_info:
-        radarr_movie = (
-            session.query(RadarrMovieModel).filter_by(id=target.radarr_info.id).first()
-        )
-        if radarr_movie:
-            radarr_movie.torrent_file = target.rd_file
-            session.commit()
-    elif target.sonarr_info:
-        sonarr_episode = (
-            session.query(SonarrEpisodeModel)
-            .filter_by(id=target.sonarr_info.id)
-            .first()
-        )
-        if sonarr_episode:
-            sonarr_episode.torrent_file = target.rd_file
-            session.commit()
-
-
-event.listen(SymlinkModel, "after_insert", update_torrent_file)
-event.listen(SymlinkModel, "after_update", update_torrent_file)
-
-# from sqlalchemy.ext.asyncio import AsyncSession
-# from sqlalchemy.orm import sessionmaker
-
-# # Create a sessionmaker for async sessions
-# AsyncSession = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
-
-# async def update_torrent_file(mapper, connection, target: SymlinkModel):
-#     async with AsyncSession(engine) as session:
-#         if target.radarr_info:
-#             radarr_movie = (
-#                 await session.query(RadarrMovieModel).filter_by(id=target.radarr_info.id).first()
-#             )
-#             if radarr_movie:
-#                 radarr_movie.torrent_file = target.rd_file
-#                 await session.commit()
-#         elif target.sonarr_info:
-#             sonarr_episode = (
-#                 await session.query(SonarrEpisodeModel)
-#                 .filter_by(id=target.sonarr_info.id)
-#                 .first()
-#             )
-#             if sonarr_episode:
-#                 sonarr_episode.torrent_file = target.rd_file
-#                 await session.commit()
-
-# event.listen(SymlinkModel, "after_insert", update_torrent_file, propagate=True)
-# event.listen(SymlinkModel, "after_update", update_torrent_file, propagate=True)
