@@ -436,35 +436,3 @@ class MediaDAO:
         except Exception as e:
             logger.error(f"An error occurred while linking torrent to Sonarr: {e!s}")
             await self.session.rollback()
-
-    async def link_radarr_to_symlink(self, symlink_id: str, radarr_id: str) -> None:
-        """
-        Link a Radarr movie to a symlink.
-        :param symlink_id: ID of the symlink.
-        :param file_id: ID of the torrent file.
-        """
-        try:
-            symlink = await self.session.get(SymlinkModel, symlink_id)
-            radarr = await self.session.get(RadarrMovieModel, radarr_id)
-            if symlink and radarr:
-                symlink.radarr_info = radarr
-                await self.session.commit()
-        except Exception as e:
-            logger.error(f"An error occurred while linking Radarr to symlink: {e!s}")
-            await self.session.rollback()
-
-    async def link_sonarr_to_symlink(self, symlink_id: str, sonarr_id: str) -> None:
-        """
-        Link a Sonarr episode to a symlink.
-        :param symlink_id: ID of the symlink.
-        :param file_id: ID of the torrent file.
-        """
-        try:
-            symlink = await self.session.get(SymlinkModel, symlink_id)
-            sonarr = await self.session.get(SonarrEpisodeModel, sonarr_id)
-            if symlink and sonarr:
-                symlink.sonarr_info = sonarr
-                await self.session.commit()
-        except Exception as e:
-            logger.error(f"An error occurred while linking Sonarr to symlink: {e!s}")
-            await self.session.rollback()
