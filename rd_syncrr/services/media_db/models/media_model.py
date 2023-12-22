@@ -113,6 +113,7 @@ class SonarrEpisodeModel(Base):
     torrent_file: Mapped[Optional["TorrentFileModel"]] = relationship(
         "TorrentFileModel",
         back_populates="sonarr_info",
+        uselist=False,
     )
 
 
