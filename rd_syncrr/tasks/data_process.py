@@ -64,9 +64,9 @@ async def _fetch_files_info(
     data = []
 
     for file in files:
-        if file.radarr_info and file.radarr_id:
+        info_data = None
+        if file.radarr_id:
             info_radarr = await dao.get_radarr_info_by_id(id=file.radarr_id)
-            info_data = None
             if info_radarr:
                 info_data = {
                     "mediaType": info_radarr.mediaType,
@@ -80,7 +80,7 @@ async def _fetch_files_info(
                     "resolution": info_radarr.resolution,
                     "languages": info_radarr.languages,
                 }
-        elif file.sonarr_info and file.sonarr_id:
+        elif file.sonarr_id:
             info_sonarr = await dao.get_sonarr_info_by_id(id=file.sonarr_id)
             if info_sonarr:
                 info_data = {

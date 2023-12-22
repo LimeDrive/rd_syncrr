@@ -214,6 +214,30 @@ class MediaDAO:
         result = await self.session.execute(query)
         return result.scalars().first()
 
+    async def get_files_unlinked_media(self) -> Optional[Sequence[TorrentFileModel]]:
+        """
+        Get all torrent files that are not linked to any torrents.
+        :return: List of torrent file models.
+        """
+        query = select(TorrentFileModel).where(
+            TorrentFileModel.radarr_id == None,  # noqa: E711
+            TorrentFileModel.sonarr_id == None,  # noqa: E711
+            TorrentFileModel.symlink_id != None,  # noqa: E711
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+    async def get_files_unlinked_symlink(self) -> Optional[Sequence[TorrentFileModel]]:
+        """
+        Get all torrent files that are not linked to any torrents.
+        :return: List of torrent file models.
+        """
+        query = select(TorrentFileModel).where(
+            TorrentFileModel.symlink_id == None,  # noqa: E711
+        )
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
     async def get_files_from_torrent_id(
         self,
         torrent_id: str,
@@ -360,3 +384,87 @@ class MediaDAO:
         query = select(SonarrEpisodeModel).where(SonarrEpisodeModel.id == id)
         result = await self.session.execute(query)
         return result.scalars().first()
+
+    async def check_radarr_path_exists(self, path: str) -> Optional[RadarrMovieModel]:
+        """
+        Check if a Radarr path exists in the database.
+        :param path: Path to check.
+        :return: Radarr movie model or None if not found.
+        """
+        query = select(RadarrMovieModel).where(RadarrMovieModel.path == path)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def check_sonarr_path_exists(self, path: str) -> Optional[SonarrEpisodeModel]:
+        """
+        Check if a Sonarr path exists in the database.
+        :param path: Path to check.
+        :return: Sonarr episode model or None if not found.
+        """
+        query = select(SonarrEpisodeModel).where(SonarrEpisodeModel.path == path)
+        result = await self.session.execute(query)
+        return result.scalars().first()
+
+    async def link_file_to_radarr(self, radarr_id: str, file_id: str) -> None:
+        """
+        Link a torrent to a Radarr movie.
+        :param radarr_id: ID of the Radarr movie.
+        :param torrent_id: ID of the torrent.
+        """
+        try:
+            radarr_movie = await self.session.get(RadarrMovieModel, radarr_id)
+            torrent_file = await self.session.get(TorrentFileModel, file_id)
+            if radarr_movie and torrent_file:
+                torrent_file.radarr_info = radarr_movie
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking torrent to Radarr: {e!s}")
+            await self.session.rollback()
+
+    async def link_file_to_sonarr(self, sonarr_id: str, file_id: str) -> None:
+        """
+        Link a torrent to a Sonarr episode.
+        :param sonarr_id: ID of the Sonarr episode.
+        :param torrent_id: ID of the torrent.
+        """
+        try:
+            sonarr_episode = await self.session.get(SonarrEpisodeModel, sonarr_id)
+            torrent_file = await self.session.get(TorrentFileModel, file_id)
+            if sonarr_episode and torrent_file:
+                torrent_file.sonarr_info = sonarr_episode
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking torrent to Sonarr: {e!s}")
+            await self.session.rollback()
+
+    async def link_radarr_to_symlink(self, symlink_id: str, radarr_id: str) -> None:
+        """
+        Link a Radarr movie to a symlink.
+        :param symlink_id: ID of the symlink.
+        :param file_id: ID of the torrent file.
+        """
+        try:
+            symlink = await self.session.get(SymlinkModel, symlink_id)
+            radarr = await self.session.get(RadarrMovieModel, radarr_id)
+            if symlink and radarr:
+                symlink.radarr_info = radarr
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking Radarr to symlink: {e!s}")
+            await self.session.rollback()
+
+    async def link_sonarr_to_symlink(self, symlink_id: str, sonarr_id: str) -> None:
+        """
+        Link a Sonarr episode to a symlink.
+        :param symlink_id: ID of the symlink.
+        :param file_id: ID of the torrent file.
+        """
+        try:
+            symlink = await self.session.get(SymlinkModel, symlink_id)
+            sonarr = await self.session.get(SonarrEpisodeModel, sonarr_id)
+            if symlink and sonarr:
+                symlink.sonarr_info = sonarr
+                await self.session.commit()
+        except Exception as e:
+            logger.error(f"An error occurred while linking Sonarr to symlink: {e!s}")
+            await self.session.rollback()

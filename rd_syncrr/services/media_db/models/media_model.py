@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Any, List  # noqa: UP035
+from typing import List  # noqa: UP035
 
 import shortuuid
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, event
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Optional, String
 
 from ..base import Base
@@ -231,55 +231,3 @@ class TorrentFileModel(Base):
         uselist=False,
         foreign_keys="TorrentFileModel.sonarr_id",
     )
-
-
-def update_torrent_file(mapper: Any, connection: Any, target: SymlinkModel) -> None:
-    session = Session(bind=connection)
-    if target.radarr_info:
-        radarr_movie = (
-            session.query(RadarrMovieModel).filter_by(id=target.radarr_info.id).first()
-        )
-        if radarr_movie:
-            radarr_movie.torrent_file = target.rd_file
-            session.commit()
-    elif target.sonarr_info:
-        sonarr_episode = (
-            session.query(SonarrEpisodeModel)
-            .filter_by(id=target.sonarr_info.id)
-            .first()
-        )
-        if sonarr_episode:
-            sonarr_episode.torrent_file = target.rd_file
-            session.commit()
-
-
-event.listen(SymlinkModel, "after_insert", update_torrent_file)
-event.listen(SymlinkModel, "after_update", update_torrent_file)
-
-# from sqlalchemy.ext.asyncio import AsyncSession
-# from sqlalchemy.orm import sessionmaker
-
-# # Create a sessionmaker for async sessions
-# AsyncSession = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
-
-# async def update_torrent_file(mapper, connection, target: SymlinkModel):
-#     async with AsyncSession(engine) as session:
-#         if target.radarr_info:
-#             radarr_movie = (
-#                 await session.query(RadarrMovieModel).filter_by(id=target.radarr_info.id).first()
-#             )
-#             if radarr_movie:
-#                 radarr_movie.torrent_file = target.rd_file
-#                 await session.commit()
-#         elif target.sonarr_info:
-#             sonarr_episode = (
-#                 await session.query(SonarrEpisodeModel)
-#                 .filter_by(id=target.sonarr_info.id)
-#                 .first()
-#             )
-#             if sonarr_episode:
-#                 sonarr_episode.torrent_file = target.rd_file
-#                 await session.commit()
-
-# event.listen(SymlinkModel, "after_insert", update_torrent_file, propagate=True)
-# event.listen(SymlinkModel, "after_update", update_torrent_file, propagate=True)
